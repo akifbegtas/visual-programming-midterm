@@ -1,0 +1,1740 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- MANDATORY: Declare support for both light and dark themes -->
+  <meta name="color-scheme" content="light dark">
+  <script>
+    {
+      const colorScheme = localStorage.getItem("color-scheme");
+      if (colorScheme) {
+        document.querySelector('meta[name="color-scheme"]').content = colorScheme;
+      }
+    }
+  </script>
+  <title>Visual Programming</title>
+  <style>
+    :root {
+      interpolate-size: allow-keywords;
+
+      --bg-light: #f8fafc;
+      --bg-dark: #0f172a;
+      --surface-light: #ffffff;
+      --surface-dark: #1e293b;
+      --surface-alt-light: #f1f5f9;
+      --surface-alt-dark: #334155;
+      --text-light: #0f172a;
+      --text-dark: #f8fafc;
+      --muted-light: #475569;
+      --muted-dark: #cbd5e1;
+      --border-light: #e2e8f0;
+      --border-dark: #334155;
+      --primary-light: #2563eb;
+      --primary-dark: #60a5fa;
+      --primary-bg-light: #eff6ff;
+      --primary-bg-dark: #1e3a8a55;
+      --accent-light: #7c3aed;
+      --accent-dark: #c084fc;
+      --success-light: #16a34a;
+      --success-dark: #4ade80;
+      --warning-light: #d97706;
+      --warning-dark: #fbbf24;
+      --danger-light: #dc2626;
+      --danger-dark: #f87171;
+
+      /* Fallbacks */
+      --bg: var(--bg-light);
+      --surface: var(--surface-light);
+      --surface-alt: var(--surface-alt-light);
+      --text: var(--text-light);
+      --muted: var(--muted-light);
+      --border: var(--border-light);
+      --primary: var(--primary-light);
+      --primary-bg: var(--primary-bg-light);
+      --accent: var(--accent-light);
+      --success: var(--success-light);
+      --warning: var(--warning-light);
+      --danger: var(--danger-light);
+
+      @media (prefers-color-scheme: dark) {
+        --bg: var(--bg-dark);
+        --surface: var(--surface-dark);
+        --surface-alt: var(--surface-alt-dark);
+        --text: var(--text-dark);
+        --muted: var(--muted-dark);
+        --border: var(--border-dark);
+        --primary: var(--primary-dark);
+        --primary-bg: var(--primary-bg-dark);
+        --accent: var(--accent-dark);
+        --success: var(--success-dark);
+        --warning: var(--warning-dark);
+        --danger: var(--danger-dark);
+      }
+
+      @supports (color: light-dark(white, black)) {
+        --bg: light-dark(var(--bg-light), var(--bg-dark));
+        --surface: light-dark(var(--surface-light), var(--surface-dark));
+        --surface-alt: light-dark(var(--surface-alt-light), var(--surface-alt-dark));
+        --text: light-dark(var(--text-light), var(--text-dark));
+        --muted: light-dark(var(--muted-light), var(--muted-dark));
+        --border: light-dark(var(--border-light), var(--border-dark));
+        --primary: light-dark(var(--primary-light), var(--primary-dark));
+        --primary-bg: light-dark(var(--primary-bg-light), var(--primary-bg-dark));
+        --accent: light-dark(var(--accent-light), var(--accent-dark));
+        --success: light-dark(var(--success-light), var(--success-dark));
+        --warning: light-dark(var(--warning-light), var(--warning-dark));
+        --danger: light-dark(var(--danger-light), var(--danger-dark));
+      }
+
+      color-scheme: light dark;
+      accent-color: var(--primary);
+    }
+
+    html.theme-light { color-scheme: light; }
+    html.theme-dark { color-scheme: dark; }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      display: flex;
+      min-height: 100vh;
+      font-size: 16px;
+    }
+
+    /* Sidebar */
+    aside.sidebar {
+      width: 285px;
+      background-color: var(--surface);
+      border-right: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 1.5rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      flex-shrink: 0;
+    }
+
+    .brand {
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand h1 {
+      font-size: 1.25rem;
+      color: var(--primary);
+      font-weight: 800;
+    }
+    .brand p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+
+    .nav-menu {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .nav-btn {
+      width: 100%;
+      text-align: left;
+      padding: 0.75rem 0.9rem;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      border-radius: 0.6rem;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .nav-btn:hover {
+      background-color: var(--surface-alt);
+    }
+
+    .nav-btn.active {
+      background-color: var(--primary-bg);
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .theme-btn {
+      width: 100%;
+      padding: 0.7rem;
+      border: 1px solid var(--border);
+      background-color: var(--surface-alt);
+      color: var(--text);
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    /* Main Content */
+    main.content {
+      flex: 1;
+      padding: 2rem 2.5rem;
+      max-width: 1150px;
+      margin: 0 auto;
+    }
+
+    .tab-section {
+      display: none;
+      animation: fadeIn 0.25s ease;
+    }
+    .tab-section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-header {
+      margin-bottom: 1.75rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--border);
+    }
+    .section-header .badge {
+      display: inline-block;
+      padding: 0.3rem 0.75rem;
+      background-color: var(--primary-bg);
+      color: var(--primary);
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .section-header h2 {
+      font-size: 1.9rem;
+      margin-bottom: 0.4rem;
+    }
+    .section-header p {
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    /* Daily Life Analogy Banner */
+    .analogy-box {
+      background: linear-gradient(135deg, var(--primary-bg), transparent);
+      border: 2px dashed var(--primary);
+      border-radius: 0.85rem;
+      padding: 1.15rem 1.35rem;
+      margin-bottom: 1.5rem;
+    }
+    .analogy-box h4 {
+      color: var(--primary);
+      font-size: 1.05rem;
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    /* Cards & Grids */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.85rem;
+      padding: 1.35rem;
+      margin-bottom: 1.35rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+    }
+    .card h3 {
+      font-size: 1.25rem;
+      margin-bottom: 0.75rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card h4 {
+      font-size: 1.05rem;
+      margin: 0.85rem 0 0.45rem 0;
+    }
+
+    /* Term Pill */
+    .term {
+      display: inline-flex;
+      align-items: center;
+      background-color: var(--primary-bg);
+      color: var(--primary);
+      padding: 0.1rem 0.5rem;
+      border-radius: 0.35rem;
+      font-weight: 700;
+      font-size: 0.92em;
+    }
+
+    /* Code Blocks */
+    pre, code {
+      font-family: "JetBrains Mono", "Fira Code", Consolas, Monaco, monospace;
+      color-scheme: dark;
+    }
+
+    pre {
+      background-color: #0d1117;
+      color: #e6edf3;
+      padding: 1.1rem 1.25rem;
+      border-radius: 0.65rem;
+      overflow-x: auto;
+      font-size: 0.92rem;
+      line-height: 1.65;
+      margin: 0.75rem 0;
+      border: 1px solid #30363d;
+    }
+
+    code:not(pre code) {
+      background-color: var(--surface-alt);
+      color: var(--accent);
+      padding: 0.15rem 0.45rem;
+      border-radius: 0.3rem;
+      font-size: 0.9em;
+      font-weight: 700;
+    }
+
+    .kw { color: #ff7b72; font-weight: bold; }
+    .fn { color: #d2a8ff; }
+    .st { color: #a5d6ff; }
+    .cm { color: #7ee787; font-style: italic; }
+    .nm { color: #79c0ff; }
+
+    /* Tables */
+    .table-wrap {
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+      background-color: var(--surface);
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 0.85rem 1rem;
+      border: 1px solid var(--border);
+      text-align: left;
+    }
+    th {
+      background-color: var(--surface-alt);
+      font-weight: 700;
+    }
+    tr:hover td {
+      background-color: var(--primary-bg);
+    }
+
+    /* Interactive Simulators */
+    .sim-box {
+      background-color: var(--surface-alt);
+      border: 2px solid var(--primary);
+      border-radius: 0.85rem;
+      padding: 1.35rem;
+      margin: 1.5rem 0;
+    }
+    .sim-title {
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: var(--primary);
+      margin-bottom: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .sim-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      margin-bottom: 1rem;
+      align-items: center;
+    }
+    .btn {
+      padding: 0.55rem 1rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border);
+      background-color: var(--surface);
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .btn-primary {
+      background-color: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .btn-primary:hover {
+      opacity: 0.9;
+      color: #fff;
+    }
+
+    input[type="text"], input[type="number"], select {
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.45rem;
+      border: 1px solid var(--border);
+      background-color: var(--surface);
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    /* Byte Tape */
+    .byte-tape {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin: 1rem 0;
+      padding: 0.85rem;
+      background-color: var(--surface);
+      border-radius: 0.6rem;
+      border: 1px solid var(--border);
+    }
+    .byte-cell {
+      width: 36px;
+      height: 46px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: monospace;
+      font-size: 0.95rem;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+    .byte-cell .idx {
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+    .byte-cell.pointer {
+      border: 2px solid var(--danger);
+      background-color: rgba(220, 38, 38, 0.18);
+      transform: scale(1.1);
+      font-weight: bold;
+    }
+    .byte-cell.read-range {
+      background-color: var(--primary-bg);
+      border-color: var(--primary);
+    }
+
+    /* Mock Tkinter Window */
+    .tk-window {
+      width: 100%;
+      max-width: 420px;
+      background-color: #f0f0f0;
+      color: #111;
+      border: 1px solid #888;
+      border-radius: 6px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+      overflow: hidden;
+      margin: 0.75rem auto;
+      font-family: Tahoma, sans-serif;
+    }
+    .tk-titlebar {
+      background: linear-gradient(to right, #e4e4e4, #d0d0d0);
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #aaa;
+      color: #222;
+    }
+    .tk-controls span {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-left: 4px;
+      border: 1px solid #777;
+    }
+    .tk-body {
+      padding: 12px;
+      min-height: 175px;
+      position: relative;
+      background-color: #f0f0f0;
+    }
+
+    /* Accordions */
+    .accordion-item {
+      border: 1px solid var(--border);
+      border-radius: 0.6rem;
+      margin-bottom: 0.65rem;
+      background-color: var(--surface);
+      overflow: hidden;
+    }
+    .accordion-trigger {
+      width: 100%;
+      padding: 0.95rem 1.1rem;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 1rem;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .accordion-trigger:hover {
+      background-color: var(--surface-alt);
+    }
+    .accordion-panel {
+      block-size: 0;
+      overflow: hidden;
+      transition: block-size 0.3s ease-out;
+      padding: 0 1.1rem;
+    }
+    .accordion-item.is-expanded .accordion-panel {
+      block-size: auto;
+      padding: 0.85rem 1.1rem 1.1rem 1.1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .accordion-panel, .tab-section, .byte-cell {
+        transition: none !important;
+        animation: none !important;
+      }
+    }
+
+    /* Alerts */
+    .alert {
+      padding: 1rem 1.15rem;
+      border-radius: 0.6rem;
+      margin: 0.9rem 0;
+      border-left: 5px solid var(--primary);
+      background-color: var(--primary-bg);
+      font-size: 0.95rem;
+    }
+    .alert-warn {
+      border-left-color: var(--warning);
+      background-color: rgba(217, 119, 6, 0.14);
+    }
+    .alert-danger {
+      border-left-color: var(--danger);
+      background-color: rgba(220, 38, 38, 0.14);
+    }
+
+    .search-bar {
+      width: 100%;
+      padding: 0.9rem 1.15rem;
+      font-size: 1rem;
+      border-radius: 0.65rem;
+      border: 2px solid var(--border);
+      background-color: var(--surface);
+      color: var(--text);
+      margin-bottom: 1.25rem;
+    }
+    .search-bar:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    @media (max-width: 860px) {
+      body { flex-direction: column; }
+      aside.sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+      .nav-menu { flex-direction: row; flex-wrap: wrap; }
+      .nav-btn { width: auto; }
+      main.content { padding: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SOL MENÜ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <h1>🚀 Visual Programming</h1>
+      <p>Sıfırdan En Basit Anlatımla Vize Özeti (5 PDF Tek Sayfada)</p>
+    </div>
+
+    <ul class="nav-menu">
+      <li><button class="nav-btn active" onclick="switchTab('tab-files', this)">📁 1. Dosya Açma, Okuma & JSON</button></li>
+      <li><button class="nav-btn" onclick="switchTab('tab-os-db', this)">🗂️ 2. Klasörler (OS) & Shelve</button></li>
+      <li><button class="nav-btn" onclick="switchTab('tab-exceptions', this)">🛟 3. Hata Yakalama (Try-Except)</button></li>
+      <li><button class="nav-btn" onclick="switchTab('tab-gui1', this)">🖼️ 4. Pencere & Butonlar (GUI 1)</button></li>
+      <li><button class="nav-btn" onclick="switchTab('tab-gui2', this)">📐 5. Hizalama & Tıklama (GUI 2)</button></li>
+      <li><button class="nav-btn" onclick="switchTab('tab-glossary', this)">🇬🇧 6. İngilizce Kelime Sözlüğü</button></li>
+      <li><button class="nav-btn" onclick="switchTab('tab-quiz', this)">🎯 7. Kendini Test Et (10 Soru)</button></li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <button class="theme-btn" id="themeToggleBtn" onclick="toggleTheme()">
+        🌓 Açık / Koyu Tema
+      </button>
+    </div>
+  </aside>
+
+  <!-- ANA İÇERİK -->
+  <main class="content">
+
+    <!-- ==================== BÖLÜM 1: DOSYALAR & JSON ==================== -->
+    <section id="tab-files" class="tab-section active">
+      <div class="section-header">
+        <span class="badge">1. ve 2. PDF • En Basit Anlatım</span>
+        <h2>1. Dosya İşlemleri (Files), İmleç (Seek) ve JSON</h2>
+        <p>Program kapandığında verilerimiz uçup gitmesin diye onları bilgisayardaki dosyalara nasıl kaydederiz ve okuruz?</p>
+      </div>
+
+      <div class="analogy-box">
+        <h4>💡 Günlük Hayat Benzetmesi: Neden Dosya Kullanıyoruz?</h4>
+        <p>Python'da normalde değişken oluşturduğumuzda (örneğin <code>puan = 100</code>), bu bilgi <strong>RAM'de (Kısa Süreli Hafızada)</strong> tutulur. Programı kapattığın an her şey silinir. Buna <span class="term">Transient (Geçici)</span> denir.<br>
+        Ama biz oyundaki skorumuzu bir <strong>Not Defterine (Hard Diske / Dosyaya)</strong> yazarsak, bilgisayarı kapatıp açsak bile o bilgi orada kalır. İşte buna <span class="term">Persistent (Kalıcı)</span> program denir!</p>
+      </div>
+
+      <!-- Dosyaya Yazma ve Kapatma -->
+      <div class="card">
+        <h3>✍️ 1. Dosyaya Nasıl Yazı Yazarız? (<code>open</code>, <code>write</code>, <code>close</code>)</h3>
+        <p>Gerçek hayatta bir deftere yazı yazmak için 3 adım vardır: <strong>1) Defteri aç, 2) İçine yaz, 3) Defteri kapat.</strong> Python'da da birebir aynıdır:</p>
+        <pre><code><span class="cm"># 1. ADIM: Dosyayı 'w' (Write = Yazma) modunda açıyoruz</span>
+fout = <span class="fn">open</span>(<span class="st">'output.txt'</span>, <span class="st">'w'</span>)
+
+<span class="cm"># 2. ADIM: İçine metin yazıyoruz (\n alt satıra geç demektir)</span>
+fout.<span class="fn">write</span>(<span class="st">"Halic\n"</span>)
+fout.<span class="fn">write</span>(<span class="st">"University.\n"</span>) <span class="cm"># Kaldığı yerin sonuna eklemeye devam eder</span>
+
+<span class="cm"># 3. ADIM: İşimiz bitince dosyayı KAPATIYORUZ (Kaydedilmesi için şart!)</span>
+fout.<span class="fn">close</span>()</code></pre>
+
+        <div class="alert alert-danger">
+          <strong>🚨 Sınavda Kesin Sorulur (Çok Dikkat!):</strong><br>
+          • Eğer <code>'w'</code> (yazma) modunda açtığın dosya bilgisayarda <strong>yoksa</strong>: Python senin için sıfırdan <strong>yeni bir dosya oluşturur</strong>.<br>
+          • Eğer o dosya bilgisayarda <strong>zaten varsa</strong>: Python acımaz, <strong>içindeki tüm eski yazıları siler (<span class="term">Overwrites / Truncates</span>)</strong> ve temiz sayfa açar!
+        </div>
+
+        <h4>🔢 Sayıları Dosyaya Yazabilir miyiz? (<span class="term">Formatting</span>)</h4>
+        <p>Hayır! <code>write()</code> fonksiyonu <strong>sadece metin (<span class="term">String</span>)</strong> kabul eder. İçine doğrudan <code>52</code> gibi bir sayı yazarsan hata verir. Sayıyı önce <code>str(52)</code> veya <code>f"{x}"</code> ile metne çevirmelisin:</p>
+        <pre><code>x = <span class="nm">52</span>
+f.<span class="fn">write</span>(<span class="fn">str</span>(x))   <span class="cm"># Doğru! Sayıyı "52" metnine çevirdik</span>
+f.<span class="fn">write</span>(<span class="st">f"{x}"</span>)   <span class="cm"># Doğru! f-string ile metne çevirdik</span></code></pre>
+      </div>
+
+      <!-- Dosya Okuma Yöntemleri -->
+      <div class="card">
+        <h3>📖 2. Dosyayı Nasıl Okuruz? (3 Farklı Yol)</h3>
+        <p>Dosyayı okumak için ikinci parametre olarak <code>'r'</code> (<span class="term">Read = Okuma</span>) yazarız. Slaytta 3 yöntem gösteriliyor, <strong>en iyisi <code>with</code> kullanmaktır</strong> çünkü dosyayı senin yerine otomatik kapatır:</p>
+        <div class="grid-3">
+          <div>
+            <h4>Yöntem 1.1 (Klasik)</h4>
+            <pre><code>file = <span class="fn">open</span>(<span class="st">'newfile.txt'</span>, <span class="st">'r'</span>)
+<span class="kw">for</span> line <span class="kw">in</span> file:
+    <span class="fn">print</span>(line)
+file.<span class="fn">close</span>()</code></pre>
+          </div>
+          <div>
+            <h4>Yöntem 1.2 (Kısa)</h4>
+            <pre><code><span class="kw">for</span> line <span class="kw">in</span> <span class="fn">open</span>(<span class="st">'newfile.txt'</span>, <span class="st">'r'</span>):
+    <span class="fn">print</span>(line)
+file.<span class="fn">close</span>()</code></pre>
+          </div>
+          <div>
+            <h4>Yöntem 2 (<code>with</code> - En İyisi ⭐)</h4>
+            <pre><code><span class="kw">with</span> <span class="fn">open</span>(<span class="st">'newfile.txt'</span>, <span class="st">'r'</span>) <span class="kw">as</span> file:
+    <span class="kw">for</span> line <span class="kw">in</span> file:
+        <span class="fn">print</span>(line)
+<span class="cm"># close() yazmana gerek yok!</span></code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modlar Tablosu -->
+      <div class="card">
+        <h3>🔑 3. Dosya Açma Modları Şifresi (Tek Bakışta Ezberle!)</h3>
+        <p><span class="term">File Pointer (Dosya İmleci)</span>: Word belgesindeki yanıp sönen yazı çubuğu (<code>|</code>) gibidir. Dosyayı açtığında bu çubuk başta mı duracak yoksa en sonda mı?</p>
+        <ul style="margin: 0.5rem 0 1rem 1.5rem;">
+          <li><strong><code>r</code> (Read):</strong> Sadece okur. Dosya yoksa hata verir.</li>
+          <li><strong><code>w</code> (Write):</strong> Yazar. Dosya varsa <strong>eskisini siler</strong>, yoksa yeni açar.</li>
+          <li><strong><code>a</code> (Append - Sona Ekle):</strong> Eski yazıları <strong>SİLMEZ!</strong> İmleci en sona koyar, altına ekleme yapar.</li>
+          <li><strong><code>+</code> işareti (<code>r+</code>, <code>w+</code>, <code>a+</code>):</strong> Yanına <code>+</code> gelirse <strong>"Hem Oku Hem Yaz"</strong> demektir!</li>
+          <li><strong><code>b</code> harfi (<code>rb</code>, <code>wb</code>):</strong> <span class="term">Binary (İkili)</span> moddur. Metin olmayan dosyalar (<code>.zip</code>, resim, ses) için kullanılır.</li>
+        </ul>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Mod</th>
+                <th>Ne İşe Yarar?</th>
+                <th>İmleç (<span class="term">File Pointer</span>) Nerede Başlar?</th>
+                <th>Dosya Yoksa Oluşturur mu?</th>
+                <th>Eski İçeriği Siler mi? (<span class="term">Truncate</span>)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>'r'</code></td>
+                <td>Sadece Okuma (Varsayılan moddur)</td>
+                <td>En Başta (<span class="term">Beginning</span>)</td>
+                <td>❌ Hayır (Hata verir)</td>
+                <td>❌ Hayır</td>
+              </tr>
+              <tr>
+                <td><code>'r+'</code></td>
+                <td>Okuma + Yazma (Güncelleme)</td>
+                <td>En Başta (<span class="term">Beginning</span>)</td>
+                <td>❌ Hayır</td>
+                <td>❌ Hayır</td>
+              </tr>
+              <tr>
+                <td><code>'w'</code></td>
+                <td>Sadece Yazma</td>
+                <td>En Başta (<span class="term">Beginning</span>)</td>
+                <td>✅ Evet</td>
+                <td>⚠️ <strong>EVET (Siler!)</strong></td>
+              </tr>
+              <tr>
+                <td><code>'w+'</code></td>
+                <td>Yazma + Okuma</td>
+                <td>En Başta (<span class="term">Beginning</span>)</td>
+                <td>✅ Evet</td>
+                <td>⚠️ <strong>EVET (Siler!)</strong></td>
+              </tr>
+              <tr>
+                <td><code>'a'</code></td>
+                <td>Sona Ekleme (<span class="term">Append</span>)</td>
+                <td>En Sonda (<span class="term">End of file</span>)</td>
+                <td>✅ Evet</td>
+                <td>❌ Hayır (Korur)</td>
+              </tr>
+              <tr>
+                <td><code>'a+'</code></td>
+                <td>Sona Ekleme + Okuma</td>
+                <td>En Sonda (<span class="term">End of file</span>)</td>
+                <td>✅ Evet</td>
+                <td>❌ Hayır (Korur)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Seek Fonksiyonu -->
+      <div class="card">
+        <h3>🎯 4. <code>seek()</code> Fonksiyonu: İmleci İstediğin Harfe Işınla!</h3>
+        <p>Normalde dosya baştan sona sırayla okunur. Peki ya "10. harfe git ve oradan itibaren 5 harf oku" demek istersek? İşte o zaman <code>file.seek(offset, whence)</code> kullanırız:</p>
+        <ul style="margin: 0.5rem 0 1rem 1.5rem;">
+          <li><strong>1. Sayı (<code>offset</code>):</strong> Kaç adım (bayt/harf) ilerleyeceğiz?</li>
+          <li><strong>2. Sayı (<code>whence</code>):</strong> Yürümeye nereden başlayacağız?
+            <ul>
+              <li><code>0</code> (Yazmazsan varsayılan budur): <strong>Dosyanın en başından</strong> saymaya başla.</li>
+              <li><code>1</code>: <strong>Şu an durduğun yerden (<span class="term">current position</span>)</strong> saymaya başla.</li>
+              <li><code>2</code>: <strong>Dosyanın en sonundan (<span class="term">end of file</span>)</strong> saymaya başla.</li>
+            </ul>
+          </li>
+        </ul>
+
+        <!-- İnteraktif Seek Simülatörü -->
+        <div class="sim-box">
+          <div class="sim-title">
+            <span>🎮 Kendin Dene: <code>file.seek()</code> ve <code>file.read(5)</code> Nasıl Çalışır?</span>
+            <span id="seekStatusText">Kırmızı Kutu = İmlecin Şu Anki Yeri (Bayt 0)</span>
+          </div>
+          <div class="sim-controls">
+            <label>Kaç adım (<code>offset</code>): <input type="number" id="seekOffset" value="6" style="width:70px"></label>
+            <label>Nereden (<code>whence</code>):
+              <select id="seekWhence">
+                <option value="0">0 (En Baştan Say)</option>
+                <option value="1">1 (Durduğu Yerden İlerle)</option>
+                <option value="2">2 (En Sondan Say)</option>
+              </select>
+            </label>
+            <button class="btn btn-primary" onclick="runSeekSim()">1) <code>seek()</code> İle İmleci Taşı</button>
+            <button class="btn" onclick="runReadSim(5)">2) <code>read(5)</code> İle 5 Harf Oku</button>
+            <button class="btn" onclick="resetSeekSim()">Başa Sıfırla</button>
+          </div>
+          <div id="byteTape" class="byte-tape"></div>
+          <pre id="seekCodeOutput"><code>file = open("data.txt", "r")
+# Yukarıdaki mavi butona basarak kırmızı imleci hareket ettir!</code></pre>
+        </div>
+      </div>
+
+      <!-- Öğrenci Not Ortalaması ve JSON -->
+      <div class="grid-2">
+        <div class="card">
+          <h3>📊 5. Slayttaki Klasik Örnek: Öğrenci Not Ortalaması</h3>
+          <p>Elimizde <code>STD1:90,80,2,100</code> yazan bir dosya var. Amacımız öğrenci adını ve notlarını ayırıp ortalamasını bulmak:</p>
+          <ul style="margin: 0.4rem 0 0.6rem 1.2rem; font-size:0.92rem;">
+            <li><code>.strip()</code>: Satır sonundaki görünmez boşlukları ve <code>\n</code>'i temizler.</li>
+            <li><code>.split(":")</code>: Metni iki noktadan (<code>:</code>) ikiye böler: <code>["STD1", "90,80,2,100"]</code>.</li>
+            <li><code>.split(",")</code>: Notları virgülden (<code>,</code>) tek tek ayırır.</li>
+          </ul>
+          <pre><code>file = <span class="fn">open</span>(<span class="st">"grades.txt"</span>, <span class="st">"r"</span>)
+<span class="kw">for</span> satir <span class="kw">in</span> file.<span class="fn">readlines</span>():
+    TOTAL, COUNT = <span class="nm">0</span>, <span class="nm">0</span>
+    satir = satir.<span class="fn">strip</span>()          <span class="cm"># Boşlukları temizle</span>
+    parcalar = satir.<span class="fn">split</span>(<span class="st">":"</span>)    <span class="cm"># ':' işaretinden ikiye böl</span>
+    STD_NAME = parcalar[<span class="nm">0</span>]         <span class="cm"># "STD1"</span>
+    STD_GRADES = parcalar[<span class="nm">1</span>]       <span class="cm"># "90,80,2,100"</span>
+    <span class="kw">for</span> notu <span class="kw">in</span> STD_GRADES.<span class="fn">split</span>(<span class="st">","</span>):
+        TOTAL += <span class="fn">float</span>(notu)       <span class="cm"># Sayıya çevirip topla</span>
+        COUNT += <span class="nm">1</span>                 <span class="cm"># Not sayısını 1 artır</span>
+    AVG = TOTAL / COUNT
+    <span class="fn">print</span>(<span class="st">f"STUDENT: {STD_NAME}, AVG: {AVG}"</span>)
+file.<span class="fn">close</span>()</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>🌐 6. JSON Nedir? Nasıl Okunur ve Yazılır?</h3>
+          <p><strong>JSON:</strong> Verileri Python'daki <strong>Sözlük (<code>{ "anahtar": "değer" }</code>)</strong> ve <strong>Liste (<code>[ ... ]</code>)</strong> yapısına çok benzeyen bir şekilde metin dosyasında saklama formatıdır. Hem insanlar rahat okur hem de tüm programlama dilleri anlar.</p>
+          <pre><code><span class="kw">import</span> json
+
+<span class="cm"># 1. JSON Dosyasına Yazma (indent=4 güzel/girintili yazar - Pretty)</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"data.json"</span>, <span class="st">"w"</span>) <span class="kw">as</span> f:
+    json.<span class="fn">dumps</span>(data, f, indent=<span class="nm">4</span>) <span class="cm"># (Slaytta dumps yazıyor, normalde dump)</span>
+
+<span class="cm"># 2. JSON Dosyasını Okuma (json.load)</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"data.json"</span>, <span class="st">"r"</span>) <span class="kw">as</span> f:
+    university_data = json.<span class="fn">load</span>(f)
+
+<span class="cm"># Fakülte sayısını bulma:</span>
+<span class="fn">print</span>(<span class="fn">len</span>(university_data[<span class="st">"faculties"</span>]))
+
+<span class="cm"># İç içe (Fakülte -> Bölüm -> Ders) gezerek dersleri yazdırma:</span>
+<span class="kw">for</span> fac <span class="kw">in</span> university_data[<span class="st">"faculties"</span>]:
+    <span class="kw">for</span> dept <span class="kw">in</span> fac[<span class="st">"departments"</span>]:
+        <span class="kw">for</span> course <span class="kw">in</span> dept[<span class="st">"courses"</span>]:
+            <span class="fn">print</span>(course[<span class="st">"course_code"</span>], course[<span class="st">"course_name"</span>])</code></pre>
+          <div class="alert">
+            <strong>📗 Excel İpucu:</strong> Hoca slaytta "Excel dosyaları için <code>openpyxl</code> kütüphanesini unutmayın!" diye not düşmüş.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== BÖLÜM 2: OS & SHELVE ==================== -->
+    <section id="tab-os-db" class="tab-section">
+      <div class="section-header">
+        <span class="badge">3. PDF (1. ve 2. Kısım) • En Basit Anlatım</span>
+        <h2>2. Klasör İşlemleri (<code>os</code>) ve Sözlük Veritabanı (<code>shelve</code>)</h2>
+        <p>Bilgisayardaki dosya yollarını bulma, klasörlerin içini gezme ve verileri tıpkı bir sözlük gibi diske kaydetme.</p>
+      </div>
+
+      <div class="analogy-box">
+        <h4>💡 Günlük Hayat Benzetmesi: Relative Path vs Absolute Path</h4>
+        <p>Bir arkadaşına adres tarif ettiğini düşün:<br>
+        • <strong><span class="term">Relative Path (Göreceli Yol)</span>:</strong> "Şu an durduğun yerden 2 sokak ileri git" demektir. Yani o an <strong>hangi klasördeysen (<span class="term">current directory</span>)</strong> oradan başlar (Örn: <code>"resimler/foto.jpg"</code>).<br>
+        • <strong><span class="term">Absolute Path (Tam/Mutlak Yol)</span>:</strong> "Türkiye, İstanbul, Beyoğlu, İstiklal Cad. No:5" gibi <strong>en tepeden (C:\ veya / kök dizininden)</strong> başlayan tam adrestir (Örn: <code>"C:/Users/Akif/Desktop/resimler/foto.jpg"</code>).</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>🧭 1. <code>os</code> Modülü Komutları (Çok Kolay!)</h3>
+          <p><code>import os</code> yazarak işletim sistemi (<span class="term">Operating System</span>) araçlarını çağırırız:</p>
+          <ul style="margin: 0.5rem 0 0 1.25rem;">
+            <li><code>os.getcwd()</code>: "Şu an hangi klasördeyim?" (<span class="term">Get Current Working Directory</span>).</li>
+            <li><code>os.getpid()</code>: "Çalışan programımın Görev Yöneticisi'ndeki numarası kaç?" (<span class="term">Process ID</span>).</li>
+            <li><code>os.path.abspath("a.txt")</code>: Dosyanın en tepeden başlayan <strong>tam adresini</strong> verir.</li>
+            <li><code>os.path.exists("a.txt")</code>: Böyle bir dosya/klasör <strong>var mı?</strong> (Varsa <code>True</code>, yoksa <code>False</code>).</li>
+            <li><code>os.path.isdir(x)</code>: Bu bir <strong>klasör mü?</strong> (Directory).</li>
+            <li><code>os.path.isfile(x)</code>: Bu bir <strong>dosya mı?</strong> (File).</li>
+            <li><code>os.listdir()</code>: Klasörün içindeki her şeyi <strong>liste olarak</strong> verir.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>📂 2. Klasörün İçindeki Her Şeyi Gezmek (<code>walk</code>)</h3>
+          <p>Bir klasörün içinde hem dosyalar hem de başka alt klasörler olabilir. Eğer çıkan şey <strong>dosyaysa adını yazdırırız</strong>, eğer <strong>klasörse onun da içine gireriz</strong> (fonksiyonun kendi kendini çağırmasına <span class="term">Recursion / Özyineleme</span> denir):</p>
+          <pre><code><span class="kw">def</span> <span class="fn">walk</span>(dir):
+    <span class="kw">for</span> name <span class="kw">in</span> os.<span class="fn">listdir</span>(dir):
+        <span class="cm"># Klasör adı ile dosya adını birleştirip yol yapar:</span>
+        path = os.path.<span class="fn">join</span>(dir, name)
+        
+        <span class="kw">if</span> os.path.<span class="fn">isfile</span>(path):
+            <span class="fn">print</span>(path)  <span class="cm"># Dosyaysa ekrana yaz</span>
+        <span class="kw">else</span>:
+            <span class="fn">walk</span>(path)   <span class="cm"># Klasörse onun da içine gir!</span></code></pre>
+        </div>
+      </div>
+
+      <!-- Shelve -->
+      <div class="card">
+        <h3>🗄️ 3. <code>shelve</code> Modülü: Diskte Kayıtlı Kalan Sözlük!</h3>
+        <p>Python'daki normal sözlüğü biliyorsun: <code>sozluk['isim'] = 'Ahmet'</code>. Ama program kapanınca bu silinir.<br>
+        İşte <strong><code>shelve</code> modülü</strong>, bildiğimiz Python sözlüğünün <strong>hard diske kaydedilen kalıcı (<span class="term">persistent</span>) halidir!</strong> Büyük SQL veritabanlarına gerek olmadığında kullanılır.</p>
+
+        <div class="grid-2">
+          <div>
+            <h4>Nasıl Açılır ve Kullanılır?</h4>
+            <pre><code><span class="kw">import</span> shelve
+
+<span class="cm"># 'c' modu: Yoksa oluştur, varsa aç demektir</span>
+db = shelve.<span class="fn">open</span>(<span class="st">'mydata'</span>, <span class="st">'c'</span>)
+
+<span class="cm"># Tıpkı normal sözlük gibi veri ekle ve oku:</span>
+db[<span class="st">'name'</span>] = <span class="st">'John Doe'</span>
+db[<span class="st">'age'</span>] = <span class="st">'30'</span>
+<span class="fn">print</span>(db[<span class="st">'name'</span>])  <span class="cm"># Çıktı: John Doe</span>
+
+<span class="cm"># Döngüyle bütün anahtarları gezebilirsin:</span>
+<span class="kw">for</span> key <span class="kw">in</span> db:
+    <span class="fn">print</span>(key, db[key])
+
+db.<span class="fn">sync</span>()   <span class="cm"># Değişiklikleri anında diske kaydet</span>
+db.<span class="fn">close</span>()  <span class="cm"># İşin bitince kapat</span></code></pre>
+          </div>
+          <div>
+            <h4><code>shelve.open()</code> Mod Harfleri (Flags)</h4>
+            <ul style="margin: 0.5rem 0 1rem 1.2rem;">
+              <li><code>'r'</code>: Sadece okumak için aç (Varsayılan).</li>
+              <li><code>'w'</code>: Okuma ve yazma için aç (Dosya zaten olmalı).</li>
+              <li><code>'c'</code>: Okuma/yazma için aç, <strong>yoksa yeni oluştur</strong> (Create).</li>
+              <li><code>'n'</code>: Her seferinde eskisini silip <strong>yepyeni boş veritabanı</strong> aç (New).</li>
+            </ul>
+            <div class="alert alert-warn">
+              <strong>⚠️ İç İçe Veri (Nested Data) Güncelleme Püf Noktası:</strong><br>
+              <code>shelve</code> içindeki bir listeye eleman ekleyeceksen önce bir değişkene al, eklemeni yap, sonra <strong>tekrar <code>db['data']</code> içine geri koy</strong>:
+              <pre style="margin-top:0.4rem;"><code>gecici = db[<span class="st">'data'</span>]
+gecici[<span class="st">'persons'</span>].<span class="fn">append</span>({<span class="st">"name"</span>: <span class="st">"Ahmet"</span>})
+db[<span class="st">'data'</span>] = gecici <span class="cm"># Geri atamazsan diske yazılmaz!</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== BÖLÜM 3: HATA YÖNETİMİ (EXCEPTIONS) ==================== -->
+    <section id="tab-exceptions" class="tab-section">
+      <div class="section-header">
+        <span class="badge">3. PDF (3. Kısım) • En Basit Anlatım</span>
+        <h2>3. Hata Yönetimi (<span class="term">Exceptions</span>)</h2>
+        <p>Kullanıcı yanlış bir şey girdiğinde programımız "ÇÖKTÜ!" diye kapanmasın, hatayı kibarca yakalayıp yoluna devam etsin.</p>
+      </div>
+
+      <div class="analogy-box">
+        <h4>💡 2 Çeşit Hata Vardır: Yazım Hatası vs Çalışma Hatası</h4>
+        <p>1. <strong><span class="term">Parse-Time Error (SyntaxError - Yazım Hatası)</span>:</strong> Kodu yanlış yazmışsındır (örneğin <code>while True print</code> yazıp iki nokta <code>:</code> koymayı unutmuşsundur). Python programı <strong>hiç çalıştırmaz bile!</strong><br>
+        2. <strong><span class="term">Exception (İstisna - Çalışma Zamanı Hatası)</span>:</strong> Kodun yazılışı doğrudur ama program <strong>çalışırken (<span class="term">during execution</span>)</strong> ters bir durum olur. Örneğin kullanıcı bölen sayıya <code>0</code> yazar (<code>ZeroDivisionError</code>) veya olmayan bir dosyayı açmaya çalışırsın (<code>FileNotFoundError</code>).</p>
+      </div>
+
+      <!-- 4 Bloklu Yapı -->
+      <div class="card">
+        <h3>🛟 <code>try - except - else - finally</code> Dörtlüsü (Hava Yastığı Sistemi)</h3>
+        <p>Bu 4 kelimeyi tek bir cümleyle aklında tutabilirsin:</p>
+        <div class="grid-2">
+          <div style="display:flex;flex-direction:column;gap:0.6rem;">
+            <div class="alert"><strong>1. <code>try</code> (Dene):</strong> "Bu kodları çalıştırmayı dene, hata çıkabilir dikkatli ol!"</div>
+            <div class="alert alert-danger"><strong>2. <code>except</code> (Yakala):</strong> "Eğer <code>try</code> içinde hata çıkarsa programı çökertme, hemen buraya atla!"</div>
+            <div class="alert" style="border-left-color:var(--success);"><strong>3. <code>else</code> (Hata Yoksa):</strong> "Eğer <code>try</code> içinde <strong>HİÇBİR HATA ÇIKMADIYSA</strong> burayı çalıştır!"</div>
+            <div class="alert alert-warn"><strong>4. <code>finally</code> (Ne Olursa Olsun):</strong> "Hata çıksa da çıkmasa da en sonda <strong>HER ZAMAN</strong> burayı çalıştır!"</div>
+          </div>
+          <div>
+            <pre><code><span class="kw">try</span>:
+    num1 = <span class="fn">int</span>(<span class="fn">input</span>(<span class="st">"Bölünen sayı: "</span>))
+    num2 = <span class="fn">int</span>(<span class="fn">input</span>(<span class="st">"Bölen sayı: "</span>))
+    result = num1 / num2
+<span class="kw">except</span> ZeroDivisionError <span class="kw">as</span> detail:
+    <span class="fn">print</span>(<span class="st">"Sıfıra bölünemez!"</span>, detail)
+<span class="kw">except</span> ValueError:
+    <span class="fn">print</span>(<span class="st">"Lütfen harf değil, sayı girin!"</span>)
+<span class="kw">except</span> Exception <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="st">"Başka bir genel hata oldu:"</span>, e)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">"Harika, hiç hata yok! Sonuç:"</span>, result)
+<span class="kw">finally</span>:
+    <span class="fn">print</span>(<span class="st">"Ben her durumda çalışırım!"</span>)</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- İnteraktif Try-Except Simülatörü -->
+      <div class="sim-box">
+        <div class="sim-title">
+          <span>⚙️ Canlı Dene: Hangi Durumda Hangi Blok Çalışır?</span>
+        </div>
+        <div class="sim-controls">
+          <label>1. Sayı: <input type="text" id="simDividend" value="20" style="width:80px"></label>
+          <label>2. Sayı: <input type="text" id="simDivisor" value="4" style="width:80px"></label>
+          <button class="btn btn-primary" onclick="runExceptionSim()">Normal Çalıştır (20 / 4)</button>
+          <button class="btn" onclick="document.getElementById('simDivisor').value='0'; runExceptionSim()">Sıfıra Böl (20 / 0)</button>
+          <button class="btn" onclick="document.getElementById('simDivisor').value='elma'; runExceptionSim()">Harf Gir (20 / "elma")</button>
+        </div>
+        <pre id="exceptionSimOutput"><code># Yukarıdaki butonlardan birine tıkla ve Python'un hangi sırayla çalıştığını gör!</code></pre>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>🚨 En Sık Çıkan Hata İsimleri (Bilmen Gerekenler)</h3>
+          <ul style="margin-left:1.2rem;">
+            <li><strong><code>ZeroDivisionError</code>:</strong> Bir sayıyı <code>0</code>'a böldüğünde çıkar (<code>10 / 0</code>).</li>
+            <li><strong><code>ValueError</code>:</strong> <code>int("merhaba")</code> gibi metni sayıya çeviremediğinde çıkar.</li>
+            <li><strong><code>NameError</code>:</strong> Daha önce tanımlamadığın bir değişken adını kullandığında çıkar.</li>
+            <li><strong><code>TypeError</code>:</strong> Metin ile sayıyı toplamaya çalıştığında çıkar (<code>'2' + 2</code>).</li>
+            <li><strong><code>FileNotFoundError</code>:</strong> Olmayan bir dosyayı okumaya çalıştığında çıkar.</li>
+            <li><strong><code>IndexError</code> / <code>KeyError</code>:</strong> Listede olmayan sırayı veya sözlükte olmayan anahtarı istediğinde çıkar (İkisi de <code>LookupError</code> altındadır).</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>🚀 <code>raise</code> Nedir? (Bilerek Hata Fırlatmak)</h3>
+          <p>Bazen kendi yazdığımız kodda bir kural ihlali olduğunda <strong>kendi elimizle alarm çaldırmak (hata fırlatmak)</strong> isteriz. Bunun için <code>raise</code> kullanılır:</p>
+          <pre><code><span class="kw">try</span>:
+    <span class="kw">raise</span> NameError(<span class="st">'HiThere'</span>) <span class="cm"># Kendimiz hata fırlattık!</span>
+<span class="kw">except</span> NameError:
+    <span class="fn">print</span>(<span class="st">'Bir hata yakalandı!'</span>)
+    <span class="kw">raise</span>  <span class="cm"># Hatayı tekrar yukarı fırlatır</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== BÖLÜM 4: GUI PART 1 ==================== -->
+    <section id="tab-gui1" class="tab-section">
+      <div class="section-header">
+        <span class="badge">4. PDF (ve 5. PDF Başı) • En Basit Anlatım</span>
+        <h2>4. Görsel Arayüz (GUI) ve Tkinter Bileşenleri (Widgets)</h2>
+        <p>Siyah-beyaz konsol ekranından kurtulup gerçek pencereli, butonlu, tıklanabilir masaüstü programları yapıyoruz!</p>
+      </div>
+
+      <div class="analogy-box">
+        <h4>💡 3 Temel Kelime: TUI, GUI ve Widget Nedir?</h4>
+        <p>• <strong><span class="term">TUI (Text-based User Interface)</span>:</strong> Sadece yazı yazıp <code>print()</code> ile çıktı aldığımız siyah terminal ekranıdır.<br>
+        • <strong><span class="term">GUI (Graphical User Interface)</span>:</strong> İçinde pencereler, butonlar, menüler olan görsel arayüzdür. Python'da bunun için yerleşik <strong><code>tkinter</code></strong> kütüphanesi kullanılır (Daha modern görünümlü haline ise <strong><code>ttk</code> - Themed Tkinter</strong> denir).<br>
+        • <strong><span class="term">Widget (Bileşen)</span>:</strong> Pencerenin içine koyduğumuz <strong>Lego parçalarının her biridir!</strong> Buton bir widget'tır, yazı alanı bir widget'tır, onay kutusu bir widget'tır.</p>
+      </div>
+
+      <!-- İlk Pencere ve 6 Adım -->
+      <div class="card">
+        <h3>🪟 İlk Pencere Nasıl Açılır? (Her Programın İskeleti)</h3>
+        <div class="grid-2">
+          <div>
+            <p>Bir Tkinter programını boş bir resim kağıdına benzetebilirsin:</p>
+            <ol style="margin: 0.5rem 0 0 1.4rem;">
+              <li>Önce ana pencereyi (<span class="term">root window</span>) oluştur: <code>root = Tk()</code> (<strong>Her programda sadece 1 tane root olur ve ilk satırda açılır!</strong>)</li>
+              <li>İçine Lego parçalarını (Widget) ekle ve özelleştir.</li>
+              <li>Parçaları ekrana yerleştir (<code>pack</code>, <code>grid</code> veya <code>place</code>).</li>
+              <li>Butonlara tıklama görevlerini bağla.</li>
+              <li>En sonda <code>root.mainloop()</code> yaz ki pencere kapanmasın, ekranda açık kalıp tıklamaları beklesin!</li>
+            </ol>
+          </div>
+          <div>
+            <pre><code><span class="kw">from</span> tkinter <span class="kw">import</span> *
+
+<span class="cm"># 1. Ana pencereyi (root) oluştur</span>
+root = <span class="fn">Tk</span>()
+
+<span class="cm"># Pencere boyutunu (250x150) ve başlığını ayarla</span>
+root.<span class="fn">geometry</span>(<span class="st">"250x150+300+300"</span>)
+root.<span class="fn">title</span>(<span class="st">"Hello World"</span>)
+
+<span class="cm"># 6. Pencereyi ekranda açık tut (Sonsuz döngü)</span>
+root.<span class="fn">mainloop</span>()</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8 Widget Kartı -->
+      <div class="card">
+        <h3>🧱 Bilmen Gereken Tüm Lego Parçaları (Widgets) ve <code>.get()</code> Metodu</h3>
+        <p><strong>💡 Çok Önemli Kural:</strong> Kullanıcının kutulara yazdığı yazıyı veya seçtiği değeri okumak için her zaman <strong><code>.get()</code></strong> fonksiyonu kullanılır! Aşağıdaki kutulara tıklayarak hepsini tek tek incele:</p>
+
+        <div class="accordion-item is-expanded">
+          <button class="accordion-trigger" aria-expanded="true" onclick="toggleAccordion(this)">
+            <span>1. <code>Label</code> (Yazı Etiketi) — Ekranda sadece yazı gösterir</span>
+            <span>▼</span>
+          </button>
+          <div class="accordion-panel">
+            <p>Kullanıcının değiştiremediği bilgilendirme yazılarıdır. Yazıyı sonradan kodla değiştirmek istersek <code>StringVar()</code> adında özel bir değişken bağlarız:</p>
+            <pre><code><span class="cm"># Yöntem 1: Doğrudan sabit yazı</span>
+la = <span class="fn">Label</span>(root, text=<span class="st">"Username"</span>)
+la.<span class="fn">pack</span>()
+
+<span class="cm"># Yöntem 2: Dinamik değişebilen yazı (StringVar ile)</span>
+var = <span class="fn">StringVar</span>()
+label = <span class="fn">Label</span>(self, textvariable=var)
+var.<span class="fn">set</span>(<span class="st">"Hey!?, How are you?"</span>)  <span class="cm"># Yazıyı günceller</span></code></pre>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <button class="accordion-trigger" aria-expanded="false" onclick="toggleAccordion(this)">
+            <span>2. <code>Button</code> (Tıklama Butonu) — Tıklanınca fonksiyon çalıştırır</span>
+            <span>▼</span>
+          </button>
+          <div class="accordion-panel">
+            <p><code>command=</code> parametresine hangi fonksiyonun adını yazarsan, butona basıldığında o fonksiyon çalışır:</p>
+            <pre><code><span class="kw">def</span> <span class="fn">selam_ver</span>():
+    <span class="fn">print</span>(<span class="st">"Merhaba millet!"</span>)
+
+btn = <span class="fn">Button</span>(root, text=<span class="st">"Bana Tıkla"</span>, command=selam_ver)
+btn.<span class="fn">pack</span>()</code></pre>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <button class="accordion-trigger" aria-expanded="false" onclick="toggleAccordion(this)">
+            <span>3. <code>Entry</code> (Tek Satırlık Yazı Kutusu) — Kullanıcıdan isim/şifre alır</span>
+            <span>▼</span>
+          </button>
+          <div class="accordion-panel">
+            <p>Kullanıcının içine tek satır yazı yazabildiği kutudur. İçine ne yazıldığını <strong><code>entry.get()</code></strong> ile alırız:</p>
+            <pre><code>entry = <span class="fn">Entry</span>(root)
+entry.<span class="fn">pack</span>()
+
+<span class="cm"># Butona basınca kutunun içindeki yazıyı okuma:</span>
+yazilan = entry.<span class="fn">get</span>()
+<span class="fn">print</span>(<span class="st">"Girilen değer:"</span>, yazilan)</code></pre>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <button class="accordion-trigger" aria-expanded="false" onclick="toggleAccordion(this)">
+            <span>4. <code>Checkbutton</code> (Onay Kutusu ☑️) & <code>Radiobutton</code> (Seçenek Yuvarlağı 🔘)</span>
+            <span>▼</span>
+          </button>
+          <div class="accordion-panel">
+            <p><strong>Checkbutton:</strong> Tik atılan kutudur (Açık/Kapalı). Tik atılıp atılmadığını anlamak için <code>BooleanVar()</code> (<code>True/False</code>) veya <code>IntVar()</code> (<code>1/0</code>) bağlarız.<br>
+            <strong>Radiobutton:</strong> Birden fazla seçenekten sadece birini seçmek içindir (Örn: Python mı Java mı?).</p>
+            <pre><code>var = <span class="fn">BooleanVar</span>() <span class="cm"># veya IntVar()</span>
+cb = <span class="fn">Checkbutton</span>(root, text=<span class="st">"Başlığı Göster"</span>, variable=var)
+cb.<span class="fn">pack</span>()
+
+<span class="cm"># Seçili mi diye kontrol etme:</span>
+<span class="kw">if</span> var.<span class="fn">get</span>() == <span class="kw">True</span>:
+    <span class="fn">print</span>(<span class="st">"Kutu işaretli!"</span>)</code></pre>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <button class="accordion-trigger" aria-expanded="false" onclick="toggleAccordion(this)">
+            <span>5. <code>Listbox</code> (Alt Alta Liste Kutusu) — Şehir/öğe seçimi</span>
+            <span>▼</span>
+          </button>
+          <div class="accordion-panel">
+            <p>İçine <code>insert(END, ...)</code> ile maddeler eklenir. <code>selectmode="multiple"</code> yazarsan birden fazla madde seçilebilir:</p>
+            <pre><code>lb = <span class="fn">Listbox</span>(self, selectmode=<span class="st">"multiple"</span>)
+<span class="kw">for</span> sehir <span class="kw">in</span> [<span class="st">"Uskudar"</span>, <span class="st">"Beykoz"</span>, <span class="st">"Kadikoy"</span>]:
+    lb.<span class="fn">insert</span>(END, sehir) <span class="cm"># Listenin sonuna (END) ekle</span>
+lb.<span class="fn">pack</span>()</code></pre>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <button class="accordion-trigger" aria-expanded="false" onclick="toggleAccordion(this)">
+            <span>6. <code>Text</code> (Büyük/Çok Satırlı Not Defteri Alanı)</span>
+            <span>▼</span>
+          </button>
+          <div class="accordion-panel">
+            <p><code>Entry</code> tek satırdı, <code>Text</code> ise Word gibi çok satırlıdır ve belirli kelimeleri boyayabilirsin (<code>"1.0"</code> = 1. satırın 0. harfi demektir):</p>
+            <pre><code>text = <span class="fn">Text</span>(self)
+text.<span class="fn">insert</span>(INSERT, <span class="st">"Hello......."</span>)
+text.<span class="fn">insert</span>(END, <span class="st">"Bye Bye......."</span>)
+text.<span class="fn">tag_add</span>(<span class="st">" boya "</span>, <span class="st">"1.0"</span>, <span class="st">"1.4"</span>) <span class="cm"># İlk 4 harfi seç</span>
+text.<span class="fn">tag_config</span>(<span class="st">" boya "</span>, background=<span class="st">"yellow"</span>, foreground=<span class="st">"blue"</span>)</code></pre>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <button class="accordion-trigger" aria-expanded="false" onclick="toggleAccordion(this)">
+            <span>7. <code>Canvas</code> (Resim/Şekil Çizim Tuvali)</span>
+            <span>▼</span>
+          </button>
+          <div class="accordion-panel">
+            <p>Ekrana çizgi, yuvarlak, dikdörtgen veya çokgen çizmek için kullanılır:</p>
+            <pre><code>canvas = <span class="fn">Canvas</span>(self)
+canvas.<span class="fn">create_line</span>(<span class="nm">15</span>, <span class="nm">25</span>, <span class="nm">200</span>, <span class="nm">25</span>)                <span class="cm"># Düz çizgi</span>
+canvas.<span class="fn">create_line</span>(<span class="nm">300</span>, <span class="nm">35</span>, <span class="nm">300</span>, <span class="nm">200</span>, dash=(<span class="nm">4</span>, <span class="nm">2</span>)) <span class="cm"># Kesikli çizgi</span>
+canvas.<span class="fn">create_oval</span>(<span class="nm">10</span>, <span class="nm">10</span>, <span class="nm">80</span>, <span class="nm">80</span>, fill=<span class="st">"blue"</span>)    <span class="cm"># Mavi daire/oval</span>
+canvas.<span class="fn">create_rectangle</span>(<span class="nm">230</span>, <span class="nm">10</span>, <span class="nm">290</span>, <span class="nm">60</span>, fill=<span class="st">"green"</span>) <span class="cm"># Yeşil dikdörtgen</span></code></pre>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <button class="accordion-trigger" aria-expanded="false" onclick="toggleAccordion(this)">
+            <span>8. <code>filedialog</code> (Bilgisayardan Dosya Seçme Penceresi)</span>
+            <span>▼</span>
+          </button>
+          <div class="accordion-panel">
+            <p>"Dosya Aç" butonuna basınca bilgisayardaki klasörlerin açılmasını sağlar:</p>
+            <pre><code><span class="kw">from</span> tkinter <span class="kw">import</span> filedialog
+dosya_yolu = filedialog.<span class="fn">askopenfilename</span>(filetypes=[(<span class="st">"Text files"</span>, <span class="st">"*.txt"</span>)])
+<span class="fn">print</span>(dosya_yolu) <span class="cm"># Seçilen dosyanın adresini verir</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== BÖLÜM 5: GUI PART 2 ==================== -->
+    <section id="tab-gui2" class="tab-section">
+      <div class="section-header">
+        <span class="badge">5. PDF • En Basit Anlatım</span>
+        <h2>5. Hizalama Yöneticileri (<span class="term">Geometry Managers</span>), Tıklamalar (<span class="term">Events</span>) ve Çerçeveler (<span class="term">Frames</span>)</h2>
+        <p>Oluşturduğumuz butonları pencereye nasıl dizeceğiz ve fare tıklamalarını nasıl yakalayacağız?</p>
+      </div>
+
+      <div class="analogy-box">
+        <h4>💡 Butonları Ekrana Dizmenin 3 Yolu: Pack, Grid, Place</h4>
+        <p>Bir odaya eşya yerleştirdiğini düşün:<br>
+        1. <strong><code>pack()</code> (Koli Gibi Diz):</strong> "Bunu en üste koy, diğerini hemen altına koy, öbürünü sola yasla" der gibi hızlıca alt alta veya yan yana dizmektir.<br>
+        2. <strong><code>grid()</code> (Excel Tablosu Gibi Diz):</strong> Ekranı satır ve sütunlara böler. "0. satırın 1. sütununa koy" dersin. Düzenli formlar için en iyisidir!<br>
+        3. <strong><code>place()</code> (Cetvelle Ölçüp Koy):</strong> "Soldan 50 piksel, yukarıdan 100 piksel uzağa koy" dersin. <strong>(Tavsiye edilmez! Çünkü ekran büyüyüp küçülünce görüntüsü bozulur).</strong></p>
+      </div>
+
+      <!-- 3 Geometry Manager Detay -->
+      <div class="grid-3">
+        <div class="card">
+          <h3>📦 1. <code>pack()</code> Parametreleri</h3>
+          <ul style="margin-left:1.2rem; font-size:0.92rem;">
+            <li><strong><code>side=LEFT</code>:</strong> Alt alta değil, soldan sağa <strong>yan yana</strong> dizer (<code>TOP, BOTTOM, LEFT, RIGHT</code>).</li>
+            <li><strong><code>expand=True</code>:</strong> Penceredeki sahipsiz boş alanı (<span class="term">cavity</span>) sahiplenir.</li>
+            <li><strong><code>fill=BOTH</code>:</strong> Sahiplendiği boşluğu hem yatay (<code>X</code>) hem dikey (<code>Y</code>) doldurur.</li>
+            <li><strong><code>padx / pady</code>:</strong> Dışından boşluk bırakır.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>🏁 2. <code>grid()</code> Parametreleri</h3>
+          <ul style="margin-left:1.2rem; font-size:0.92rem;">
+            <li><strong><code>row=0, column=1</code>:</strong> Kaçıncı satır ve kaçıncı sütun?</li>
+            <li><strong><code>sticky=E</code>:</strong> Hücrenin neresine yapışsın? Pusula yönleri kullanılır:
+              <br><code>N</code> (Kuzey/Üst), <code>S</code> (Güney/Alt), <code>E</code> (Doğu/Sağ), <code>W</code> (Batı/Sol).</li>
+            <li><strong><code>columnspan=2</code>:</strong> 2 sütunluk yeri birleştirip yayılsın (<span class="term">span</span>).</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>📍 3. <code>place()</code> Parametreleri</h3>
+          <ul style="margin-left:1.2rem; font-size:0.92rem;">
+            <li><strong><code>x=50, y=100</code>:</strong> Piksel olarak tam koordinat.</li>
+            <li><strong><code>relx=0.5, rely=0.5</code>:</strong> <code>0.0</code> ile <code>1.0</code> arası yüzdelik konum (<code>0.5</code> = tam ortası).</li>
+            <li><strong><code>width, height</code>:</strong> Genişlik ve yükseklik.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- İnteraktif Layout Simülatörü -->
+      <div class="sim-box">
+        <div class="sim-title">
+          <span>🎮 Canlı Gör: Butonlara Tıkla, Pencere Düzeni Nasıl Değişiyor İzle!</span>
+        </div>
+        <div class="sim-controls">
+          <button class="btn btn-primary" onclick="setLayoutSim('pack-top')">1) <code>pack()</code> (Alt Alta)</button>
+          <button class="btn" onclick="setLayoutSim('pack-left')">2) <code>pack(side=LEFT)</code> (Yan Yana)</button>
+          <button class="btn" onclick="setLayoutSim('pack-fill')">3) <code>pack(fill=BOTH, expand=True)</code></button>
+          <button class="btn" onclick="setLayoutSim('grid')">4) <code>grid()</code> (Tablo Düzeni)</button>
+          <button class="btn" onclick="setLayoutSim('place')">5) <code>place(x, y)</code> (Koordinat)</button>
+        </div>
+        <div class="grid-2" style="align-items: center; margin-bottom: 0;">
+          <div class="tk-window">
+            <div class="tk-titlebar">
+              <span>Hello World! (Canlı Önizleme)</span>
+              <div class="tk-controls"><span></span><span></span><span></span></div>
+            </div>
+            <div class="tk-body" id="tkSimBody"></div>
+          </div>
+          <pre id="tkSimCode" style="margin:0;"><code># Yukarıdaki butonlardan birini seç!</code></pre>
+        </div>
+      </div>
+
+      <!-- Events & Bind -->
+      <div class="card">
+        <h3>🖱️ Olay Yakalama: <code>widget.bind(olay, fonksiyon)</code></h3>
+        <p>Kullanıcı fareye tıkladığında veya klavyeden bir tuşa bastığında buna <strong><span class="term">Event (Olay)</span></strong> denir. Bu olayı bir fonksiyona (<span class="term">Event Handler</span>) bağlama işlemine ise <strong><span class="term">Binding (Bağlama)</span></strong> denir.</p>
+        <div class="grid-2">
+          <div>
+            <h4>En Önemli Olay Kodları (Ezberle!)</h4>
+            <ul style="margin-left:1.2rem;">
+              <li><code>"&lt;Button-1&gt;"</code>: Farenin <strong>SOL</strong> tuşuna tıklama</li>
+              <li><code>"&lt;Button-2&gt;"</code>: Farenin <strong>ORTA</strong> tekerleğine tıklama</li>
+              <li><code>"&lt;Button-3&gt;"</code>: Farenin <strong>SAĞ</strong> tuşuna tıklama</li>
+              <li><code>"&lt;Double-Button-1&gt;"</code>: Sol tuşla <strong>Çift Tıklama</strong></li>
+              <li><code>"&lt;Motion&gt;"</code>: Fareyi hareket ettirme</li>
+              <li><code>"&lt;Enter&gt;"</code> / <code>"&lt;Leave&gt;"</code>: Farenin kutunun üstüne gelmesi / çıkması</li>
+              <li><code>"&lt;Return&gt;"</code>: Klavyeden <strong>Enter</strong> tuşuna basma</li>
+              <li><code>"&lt;&lt;ListboxSelect&gt;&gt;"</code>: Listbox'tan bir eleman seçilmesi</li>
+            </ul>
+          </div>
+          <div>
+            <h4>Nasıl Yazılır? (Tıklanan Yerin Koordinatını Bulma)</h4>
+            <pre><code><span class="cm"># Sarı etikete SOL TIK (<Button-1>) bağlayalım:</span>
+label.<span class="fn">bind</span>(<span class="st">"&lt;Button-1&gt;"</span>, self.onClick)
+
+<span class="cm"># Tıklanınca Python 'event' bilgisini otomatik gönderir:</span>
+<span class="kw">def</span> <span class="fn">onClick</span>(self, event):
+    <span class="fn">print</span>(<span class="st">"Tıklanan yer:"</span>, event.x, event.y)</code></pre>
+            <p style="font-size:0.9rem; margin-top:0.4rem;"><strong>Not:</strong> Listbox'ta seçilen elemanı bulmak için <code>idx = sender.curselection()</code> ile sırası alınır, <code>sender.get(idx)</code> ile metni okunur.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Frame & Relief -->
+      <div class="card">
+        <h3>🖼️ <code>Frame</code> (Çerçeve Kutusu) ve 5 Kenarlık Stili (<span class="term">Relief</span>)</h3>
+        <p><strong><code>Frame</code>:</strong> Pencerenin içindeki butonları düzenli gruplara ayırmak için kullandığımız <strong>görünmez kutulardır (kapsayıcı / <span class="term">container</span>)</strong>. İstersek kenarlarına 5 farklı 3 boyutlu şekil (<span class="term">relief</span>) verebiliriz:</p>
+        <div style="display:flex; gap:1rem; flex-wrap:wrap; margin: 1rem 0;">
+          <div style="padding:10px 18px; background:#e2e8f0; color:#111; border:2px solid #94a3b8;"><strong>FLAT</strong> (Düz)</div>
+          <div style="padding:10px 18px; background:#e2e8f0; color:#111; border:3px outset #fff;"><strong>RAISED</strong> (Dışa Kabarık)</div>
+          <div style="padding:10px 18px; background:#e2e8f0; color:#111; border:3px inset #fff;"><strong>SUNKEN</strong> (İçe Çökük)</div>
+          <div style="padding:10px 18px; background:#e2e8f0; color:#111; border:3px groove #94a3b8;"><strong>GROOVE</strong> (Oluklu)</div>
+          <div style="padding:10px 18px; background:#e2e8f0; color:#111; border:3px ridge #94a3b8;"><strong>RIDGE</strong> (Çıkıntılı)</div>
+        </div>
+        <pre><code>frame1 = <span class="fn">Frame</span>(root, borderwidth=<span class="nm">2</span>, relief=GROOVE, padx=<span class="nm">20</span>, pady=<span class="nm">20</span>)
+frame1.<span class="fn">pack</span>(side=LEFT)
+<span class="fn">Label</span>(frame1, text=<span class="st">"Çerçeve 1 İçindeyim!"</span>).<span class="fn">pack</span>()</code></pre>
+      </div>
+    </section>
+
+    <!-- ==================== BÖLÜM 6: SÖZLÜK ==================== -->
+    <section id="tab-glossary" class="tab-section">
+      <div class="section-header">
+        <span class="badge">Hızlı Sözlük</span>
+        <h2>6. Slaytlardaki İngilizce Terimler ve Basit Açıklamaları</h2>
+        <p>Sınavda İngilizce soruları okurken takılmaman için tüm anahtar kelimelerin en sade Türkçe karşılıkları.</p>
+      </div>
+
+      <input type="text" id="glossarySearch" class="search-bar" placeholder="🔍 Kelime ara... (Örn: persistent, truncate, seek, cavity, sticky, bind)" oninput="filterGlossary()">
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>İngilizce Terim</th>
+              <th>Türkçe Anlamı</th>
+              <th>En Basit Haliyle Ne Demek?</th>
+            </tr>
+          </thead>
+          <tbody id="glossaryBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ==================== BÖLÜM 7: QUIZ ==================== -->
+    <section id="tab-quiz" class="tab-section">
+      <div class="section-header">
+        <span class="badge">Sınav Проvası</span>
+        <h2>7. Kendini Test Et (10 Klasik Vize Sorusu)</h2>
+        <p>Şıklara tıklayarak cevabını ve neden doğru olduğunu hemen görebilirsin.</p>
+      </div>
+
+      <div id="quizContainer"></div>
+      <div class="card" style="text-align:center;">
+        <h3 id="quizScoreText" style="justify-content:center;">Henüz soru çözülmedi</h3>
+        <button class="btn btn-primary" onclick="resetQuiz()">🔄 Testi Baştan Çöz</button>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // 1. Sekme Geçişi
+    function switchTab(tabId, btnEl) {
+      document.querySelectorAll('.tab-section').forEach(sec => sec.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btnEl.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 2. Tema Değiştirme
+    function toggleTheme() {
+      const meta = document.querySelector('meta[name="color-scheme"]');
+      const html = document.documentElement;
+      const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const currentPinned = localStorage.getItem("color-scheme");
+
+      let nextScheme;
+      if (!currentPinned) {
+        nextScheme = systemDark ? "light" : "dark";
+      } else {
+        nextScheme = currentPinned === "dark" ? "light" : "dark";
+      }
+
+      localStorage.setItem("color-scheme", nextScheme);
+      meta.content = nextScheme;
+      html.classList.remove("theme-light", "theme-dark");
+      html.classList.add(`theme-${nextScheme}`);
+    }
+
+    // 3. Accordion
+    function toggleAccordion(triggerBtn) {
+      const item = triggerBtn.closest('.accordion-item');
+      const isExpanded = triggerBtn.getAttribute('aria-expanded') === 'true';
+      triggerBtn.setAttribute('aria-expanded', String(!isExpanded));
+      item.classList.toggle('is-expanded', !isExpanded);
+    }
+
+    // 4. Seek Simülatörü
+    const sampleText = "Halic University";
+    let currentPointer = 0;
+    let lastReadRange = [-1, -1];
+
+    function renderByteTape() {
+      const tape = document.getElementById('byteTape');
+      tape.innerHTML = '';
+      for (let i = 0; i <= sampleText.length; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'byte-cell';
+        if (i === currentPointer) cell.classList.add('pointer');
+        if (i >= lastReadRange[0] && i < lastReadRange[1]) cell.classList.add('read-range');
+        const ch = i < sampleText.length ? (sampleText[i] === ' ' ? '␣' : sampleText[i]) : 'SON';
+        cell.innerHTML = `<span>${ch}</span><span class="idx">${i}</span>`;
+        tape.appendChild(cell);
+      }
+      document.getElementById('seekStatusText').textContent = `Kırmızı Kutu (İmleç Yeri): ${currentPointer}. Harf`;
+    }
+
+    function runSeekSim() {
+      const offset = parseInt(document.getElementById('seekOffset').value, 10) || 0;
+      const whence = parseInt(document.getElementById('seekWhence').value, 10) || 0;
+      lastReadRange = [-1, -1];
+
+      if (whence === 0) currentPointer = offset;
+      else if (whence === 1) currentPointer += offset;
+      else if (whence === 2) currentPointer = sampleText.length + offset;
+
+      currentPointer = Math.max(0, Math.min(sampleText.length, currentPointer));
+      renderByteTape();
+      document.getElementById('seekCodeOutput').innerHTML =
+        `<code>file.seek(${offset}, ${whence})  # İmleç ${currentPointer}. sıraya ışınlandı!</code>`;
+    }
+
+    function runReadSim(n) {
+      const start = currentPointer;
+      const end = Math.min(sampleText.length, start + n);
+      const readData = sampleText.slice(start, end);
+      lastReadRange = [start, end];
+      currentPointer = end;
+      renderByteTape();
+      document.getElementById('seekCodeOutput').innerHTML =
+        `<code>data = file.read(${n})\nprint(data)  # Okunan metin: "${readData}" (İmleç şimdi ${currentPointer}. sırada)</code>`;
+    }
+
+    function resetSeekSim() {
+      currentPointer = 0;
+      lastReadRange = [-1, -1];
+      renderByteTape();
+      document.getElementById('seekCodeOutput').innerHTML =
+        `<code>file.seek(0)  # İmleç en başa (0. sıraya) döndü.</code>`;
+    }
+
+    // 5. Try-Except Simülatörü
+    function runExceptionSim() {
+      const div1Raw = document.getElementById('simDividend').value.trim();
+      const div2Raw = document.getElementById('simDivisor').value.trim();
+      const out = document.getElementById('exceptionSimOutput');
+
+      let logs = [`1️⃣ try bloğuna girildi...`];
+      const n1 = Number(div1Raw);
+      const n2 = Number(div2Raw);
+
+      if (div1Raw === '' || div2Raw === '' || !Number.isInteger(n1) || !Number.isInteger(n2)) {
+        logs.push(`2️⃣ ❌ HATA! "${div2Raw}" bir sayı olmadığı için ValueError oluştu.`);
+        logs.push(`3️⃣ 🛟 except ValueError bloğu devreye girdi -> "Lütfen geçerli bir sayı girin!"`);
+        logs.push(`4️⃣ ⏭️ else bloğu ATLANDI (Çünkü hata çıktı).`);
+      } else if (n2 === 0) {
+        logs.push(`2️⃣ ❌ HATA! Bir sayı 0'a bölünemez -> ZeroDivisionError oluştu.`);
+        logs.push(`3️⃣ 🛟 except ZeroDivisionError bloğu devreye girdi -> "Sıfıra bölünemez!"`);
+        logs.push(`4️⃣ ⏭️ else bloğu ATLANDI (Çünkü hata çıktı).`);
+      } else {
+        const res = n1 / n2;
+        logs.push(`2️⃣ ✅ İşlem başarılı! Hiçbir hata çıkmadı. Sonuç = ${res}`);
+        logs.push(`3️⃣ ⏭️ except blokları ATLANDI (Çünkü hata yok).`);
+        logs.push(`4️⃣ 🎉 else bloğu çalıştı -> "Bölme sonucu: ${res}"`);
+      }
+      logs.push(`5️⃣ 🔒 finally bloğu çalıştı -> "Hata olsa da olmasa da ben her zaman çalışırım!"`);
+      out.innerHTML = `<code>${logs.join('\n')}</code>`;
+    }
+
+    // 6. Tkinter Layout Simülatörü
+    function setLayoutSim(mode) {
+      const body = document.getElementById('tkSimBody');
+      const code = document.getElementById('tkSimCode');
+      body.removeAttribute('style');
+
+      if (mode === 'pack-top') {
+        body.innerHTML = `
+          <div style="background:red;color:white;text-align:center;padding:6px;width:80px;margin:2px auto;">Red</div>
+          <div style="background:green;color:white;text-align:center;padding:6px;width:80px;margin:2px auto;">Green</div>
+          <div style="background:blue;color:white;text-align:center;padding:6px;width:80px;margin:2px auto;">Blue</div>
+        `;
+        code.innerHTML = `<code># Normal pack() -> Kutuları yukarıdan aşağı alt alta dizer\nLabel(root, text="Red", bg="red").pack()\nLabel(root, text="Green", bg="green").pack()\nLabel(root, text="Blue", bg="blue").pack()</code>`;
+      } else if (mode === 'pack-left') {
+        body.style.display = 'flex';
+        body.style.alignItems = 'center';
+        body.innerHTML = `
+          <div style="background:red;color:white;padding:8px 14px;">Red</div>
+          <div style="background:green;color:white;padding:8px 14px;">Green</div>
+          <div style="background:blue;color:white;padding:8px 14px;">Blue</div>
+        `;
+        code.innerHTML = `<code># pack(side=LEFT) -> Kutuları soldan sağa YAN YANA dizer\nLabel(root, text="Red", bg="red").pack(side=LEFT)\nLabel(root, text="Green", bg="green").pack(side=LEFT)\nLabel(root, text="Blue", bg="blue").pack(side=LEFT)</code>`;
+      } else if (mode === 'pack-fill') {
+        body.style.display = 'flex';
+        body.style.flexDirection = 'column';
+        body.innerHTML = `
+          <div style="background:red;color:white;text-align:center;padding:12px;flex:1;">Red (Tüm alanı kapladı)</div>
+          <div style="background:green;color:white;text-align:center;padding:12px;flex:1;">Green (Tüm alanı kapladı)</div>
+          <div style="background:blue;color:white;text-align:center;padding:12px;flex:1;">Blue (Tüm alanı kapladı)</div>
+        `;
+        code.innerHTML = `<code># pack(fill=BOTH, expand=True)\n# Boşluğu (cavity) sahiplenir ve kutuyu tüm pencereye yayar!</code>`;
+      } else if (mode === 'grid') {
+        body.innerHTML = `
+          <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:6px;align-items:center;font-size:12px;">
+            <div style="text-align:right;font-weight:bold;">First:</div>
+            <input value="Mohanad" style="padding:3px;background:#fff;color:#000;border:1px solid #888;">
+            <div style="grid-row:span 2;background:#ddd;text-align:center;padding:18px;font-weight:bold;">Hello!<br><small>(2 satır birleşti)</small></div>
+            <div style="text-align:right;font-weight:bold;">Second:</div>
+            <input value="Alayedi" style="padding:3px;background:#fff;color:#000;border:1px solid #888;">
+            <div style="grid-column:span 2;"><label><input type="checkbox" checked> Show title</label></div>
+            <div style="display:flex;gap:4px;"><button style="padding:2px 8px;">OK</button><button style="padding:2px 8px;">Cancel</button></div>
+          </div>
+        `;
+        code.innerHTML = `<code># grid(row=..., column=...) -> Excel tablosu gibi satır ve sütuna koyar\nlabel1.grid(row=0, column=0, sticky=E)\nentry1.grid(row=0, column=1)\nlabel3.grid(row=0, column=2, rowspan=2)</code>`;
+      } else if (mode === 'place') {
+        body.innerHTML = `
+          <div style="position:absolute;left:20px;top:15px;background:red;color:white;padding:6px 10px;">x=20, y=15</div>
+          <div style="position:absolute;left:150px;top:65px;background:blue;color:white;padding:6px 10px;">x=150, y=65</div>
+          <div style="position:absolute;left:60px;top:115px;background:green;color:white;padding:6px 10px;">relx=0.2, rely=0.7</div>
+        `;
+        code.innerHTML = `<code># place(x=..., y=...) -> Nokta atışı koordinata koyar\nw1.place(x=20, y=15)\nw2.place(x=150, y=65)</code>`;
+      }
+    }
+
+    // 7. Kelime Sözlüğü
+    const glossaryTerms = [
+      ["Transient", "Geçici", "Program kapanınca içindeki bütün verilerin RAM'den uçup gitmesi."],
+      ["Persistent / Persistence", "Kalıcı / Kalıcılık", "Verilerin dosyaya veya veritabanına kaydedilip program kapansa bile silinmemesi."],
+      ["File Pointer", "Dosya İmleci", "Dosyanın içinde o an kaçıncı harfte olduğumuzu gösteren görünmez ok."],
+      ["Overwrite / Truncate", "Üzerine Yazmak / Sıfırlamak", "'w' modunda dosya açıldığında içindeki eski yazıların komple silinmesi."],
+      ["Append ('a')", "Sona Eklemek", "Eski yazıları silmeden, dosyanın en sonuna yeni yazı eklemek."],
+      ["Seek (offset, whence)", "Konuma Gitmek", "Dosya imlecini istediğin harfe (0:baştan, 1:bulunduğu yerden, 2:sondan) taşımak."],
+      ["Binary Mode ('rb', 'wb')", "İkili Mod", "Yazı olmayan dosyaları (resim, zip) bayt olarak okuma/yazma modu."],
+      ["Relative Path", "Göreceli Yol", "Şu an bulunduğun klasörden başlayan kısa dosya adresi."],
+      ["Absolute Path", "Tam / Mutlak Yol", "Bilgisayarın en kök dizininden (C:\\ veya /) başlayan tam adres."],
+      ["Shelve", "Dosya Tabanlı Sözlük", "Python sözlüğünü (Key -> Value) bilgisayara kalıcı dosya olarak kaydeden modül."],
+      ["Parse-time Error", "Yazım Hatası (SyntaxError)", "Kodu yanlış yazdığın için programın daha çalışmadan verdiği hata."],
+      ["Exception", "Çalışma Zamanı Hatası", "Program çalışırken çıkan beklenmedik hata (Örn: 0'a bölme)."],
+      ["Raise", "Hata Fırlatmak", "Kod içinde bilerek kendi elimizle hata/alarm üretmek."],
+      ["GUI / TUI", "Görsel Arayüz / Metin Arayüzü", "Pencereli-butonlu ekran (GUI) vs Sadece yazı yazılan siyah konsol ekranı (TUI)."],
+      ["Widget", "Görsel Bileşen (Lego Parçası)", "Pencereye koyduğumuz buton, yazı kutusu, liste gibi araçların her biri."],
+      ["Root Window", "Ana Pencere", "Tk() ile açılan en dıştaki ana çerçeve. Her programda 1 tane olur."],
+      ["Geometry Manager", "Yerleşim Yöneticisi", "Butonları ekrana dizme yöntemi: Pack (alt alta/yan yana), Grid (tablo), Place (koordinat)."],
+      ["Cavity", "Sahipsiz Boş Alan", "Pencerenin içinde henüz hiçbir butonun kullanmadığı boşluk."],
+      ["Sticky (N, S, E, W)", "Yapışma Yönü", "Grid tablosunda butonun kutunun hangi kenarına (Üst, Alt, Sağ, Sol) yaslanacağı."],
+      ["Event & Binding", "Olay ve Bağlama", "Fare tıklaması gibi bir olayı (Event), widget.bind() ile bir fonksiyona bağlamak."]
+    ];
+
+    function renderGlossary(filter = '') {
+      const tbody = document.getElementById('glossaryBody');
+      const q = filter.toLowerCase();
+      tbody.innerHTML = glossaryTerms
+        .filter(([en, tr, desc]) => en.toLowerCase().includes(q) || tr.toLowerCase().includes(q) || desc.toLowerCase().includes(q))
+        .map(([en, tr, desc]) => `<tr><td><strong>${en}</strong></td><td><span class="term">${tr}</span></td><td>${desc}</td></tr>`)
+        .join('');
+    }
+    function filterGlossary() {
+      renderGlossary(document.getElementById('glossarySearch').value);
+    }
+
+    // 8. Quiz
+    const quizData = [
+      {
+        q: "1. İçinde önemli notların olduğu 'notlar.txt' dosyasını open('notlar.txt', 'w') ile açarsan ne olur?",
+        opts: [
+          "Hata verir, dosya zaten var der.",
+          "İçindeki tüm eski notları SİLER ve boş dosya olarak açar.",
+          "Eski notların en altına yeni yazı ekler.",
+          "Sadece okuma yapar."
+        ],
+        ans: 1,
+        exp: "'w' (Write) modu acımasızdır! Dosya zaten varsa içindeki her şeyi siler (overwrites/truncates). Silmeden eklemek için 'a' (Append) kullanılır."
+      },
+      {
+        q: "2. file.seek(10, 1) komutu ne yapar?",
+        opts: [
+          "Dosyanın en başından 10 harf ileri gider.",
+          "Dosyanın en sonundan 10 harf geri gider.",
+          "İmlecin ŞU AN DURDUĞU YERDEN 10 harf ileri gider.",
+          "10. satıra gider."
+        ],
+        ans: 2,
+        exp: "İkinci sayı (whence) 0 ise en baştan, 1 ise şu anki yerden (current position), 2 ise en sondan sayar."
+      },
+      {
+        q: "3. Hem okuma hem yazma yapan ama dosya bilgisayarda yoksa YENİ OLUŞTURMAYAN mod hangisidir?",
+        opts: ["w+", "a+", "r+", "rb"],
+        ans: 2,
+        exp: "'r+' okuma ve güncelleme modudur; imleç baştadır ve dosya yoksa hata verir (yeni oluşturmaz)."
+      },
+      {
+        q: "4. shelve.open('veriler', 'c') komutundaki 'c' ne anlama gelir?",
+        opts: [
+          "Sadece okuma modunda aç",
+          "Varsa aç, yoksa yeni veritabanı oluştur (Create)",
+          "Her seferinde içini silip sıfırdan aç",
+          "Veritabanını kapat"
+        ],
+        ans: 1,
+        exp: "'c' harfi Create (yoksa oluştur, varsa okuma/yazma için aç) demektir."
+      },
+      {
+        q: "5. try - except - else - finally yapısında 'else' bloğu ne zaman çalışır?",
+        opts: [
+          "try içinde hata çıktığında",
+          "Her zaman çalışır",
+          "try içinde HİÇBİR HATA ÇIKMADIĞINDA",
+          "Sadece sıfıra bölme hatasında"
+        ],
+        ans: 2,
+        exp: "'else' bloğu yalnızca try içindeki kodlar hatasız (no exceptions) tamamlandığında çalışır. Her zaman çalışan 'finally'dir."
+      },
+      {
+        q: "6. Tkinter'da kullanıcının Entry (yazı kutusu) içine yazdığı metni okumak için hangi komut kullanılır?",
+        opts: ["entry.read()", "entry.value()", "entry.get()", "entry.take()"],
+        ans: 2,
+        exp: "Tkinter'da kutuların içindeki değeri almak için her zaman .get() metodu kullanılır!"
+      },
+      {
+        q: "7. pack() kullanırken bir butonun penceredeki tüm boş alanı sahiplenip hem enine hem boyuna doldurması için ne yazılır?",
+        opts: [
+          "sticky=W+E+N+S",
+          "fill=BOTH, expand=True",
+          "rowspan=2, columnspan=2",
+          "side=LEFT"
+        ],
+        ans: 1,
+        exp: "expand=True boşluğu (cavity) sahiplenir, fill=BOTH ise hem yatay hem dikey doldurur."
+      },
+      {
+        q: "8. Farklı ekran boyutlarında bozulduğu için hocanın 'kullanmaktan kaçının (avoid)' dediği yerleşim yöntemi hangisidir?",
+        opts: ["Pack", "Grid", "Place", "Frame"],
+        ans: 2,
+        exp: "Place kesin piksel koordinatları kullandığı için farklı ekran çözünürlüklerinde bozulur."
+      },
+      {
+        q: "9. Bir butona veya etikete farenin SAĞ tuşuyla tıklanmasını yakalamak için ne yazılır?",
+        opts: [
+          'label.bind("<Button-1>", fonk)',
+          'label.bind("<Button-3>", fonk)',
+          'label.bind("<Right>", fonk)',
+          'label.bind("<Motion>", fonk)'
+        ],
+        ans: 1,
+        exp: "<Button-1> Sol tık, <Button-2> Orta tık, <Button-3> ise Sağ tıktır."
+      },
+      {
+        q: "10. Bir klasördeki elemanın 'dosya mı yoksa klasör mü' olduğunu anlamak için hangi komutlar kullanılır?",
+        opts: [
+          "os.getcwd() ve os.getpid()",
+          "os.path.isfile() ve os.path.isdir()",
+          "os.listdir() ve os.walk()",
+          "os.open() ve os.close()"
+        ],
+        ans: 1,
+        exp: "isfile() dosya mı diye, isdir() ise klasör (directory) mü diye kontrol eder."
+      }
+    ];
+
+    let userAnswers = {};
+
+    function renderQuiz() {
+      const container = document.getElementById('quizContainer');
+      container.innerHTML = quizData.map((item, qIdx) => `
+        <div class="card" id="qcard-${qIdx}">
+          <h4>${item.q}</h4>
+          <div style="display:flex;flex-direction:column;gap:0.5rem;margin-top:0.75rem;">
+            ${item.opts.map((opt, oIdx) => `
+              <button class="btn" style="text-align:left;" id="qbtn-${qIdx}-${oIdx}" onclick="answerQuiz(${qIdx}, ${oIdx})">
+                ${String.fromCharCode(65 + oIdx)}) ${opt}
+              </button>
+            `).join('')}
+          </div>
+          <div id="qexp-${qIdx}" class="alert" style="display:none;margin-top:0.75rem;"></div>
+        </div>
+      `).join('');
+      updateQuizScore();
+    }
+
+    function answerQuiz(qIdx, oIdx) {
+      if (userAnswers[qIdx] !== undefined) return;
+      userAnswers[qIdx] = oIdx;
+      const item = quizData[qIdx];
+      const expEl = document.getElementById(`qexp-${qIdx}`);
+
+      item.opts.forEach((_, idx) => {
+        const btn = document.getElementById(`qbtn-${qIdx}-${idx}`);
+        if (idx === item.ans) {
+          btn.style.backgroundColor = 'rgba(22, 163, 74, 0.22)';
+          btn.style.borderColor = 'var(--success)';
+        } else if (idx === oIdx) {
+          btn.style.backgroundColor = 'rgba(220, 38, 38, 0.22)';
+          btn.style.borderColor = 'var(--danger)';
+        }
+      });
+
+      expEl.style.display = 'block';
+      expEl.innerHTML = (oIdx === item.ans ? '✅ <strong>Süper, Doğru!</strong> ' : '❌ <strong>Yanlış!</strong> ') + item.exp;
+      updateQuizScore();
+    }
+
+    function updateQuizScore() {
+      const total = quizData.length;
+      const answered = Object.keys(userAnswers).length;
+      const correct = Object.entries(userAnswers).filter(([q, a]) => quizData[q].ans === a).length;
+      document.getElementById('quizScoreText').textContent =
+        `Netin: ${correct} Doğru / ${total} Soru (Çözülen: ${answered}/${total})`;
+    }
+
+    function resetQuiz() {
+      userAnswers = {};
+      renderQuiz();
+    }
+
+    renderByteTape();
+    setLayoutSim('pack-top');
+    renderGlossary();
+    renderQuiz();
+  </script>
+</body>
+</html>
